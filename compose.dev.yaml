@@ -1,0 +1,35 @@
+services:
+  yugabyte:
+    image: yugabytedb/yugabyte:latest
+    container_name: yugabyte-node
+    network_mode: host
+    restart: unless-stopped
+    profiles: ["db", "dev"]
+    volumes:
+      - ./yugabyte_data:/home/yugabyte/yb_data
+    command:
+      - bin/yugabyted
+      - start
+      - --rf=${RF:-3}
+      - --advertise_address=${MY_IP}
+      - --join=${LEADER_IP}
+      - --base_dir=/home/yugabyte/yb_data
+      - --background=false
+      - --fault_tolerance=zone
+
+  app:
+    build:
+      context: ./app
+      target: development
+    network_mode: host
+    volumes:
+      - ./app_data:/app
+    depends_on:
+      yugabyte:
+        required: false
+        condition: service_started
+    environment:
+      - NODE_ENV=development
+      - DB_HOSTS=${DB_HOSTS}
+    profiles: ["app", "dev"]
+    restart: unless-stopped
