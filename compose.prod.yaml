@@ -10,7 +10,6 @@ services:
     command:
       - bin/yugabyted
       - start
-      - --rf=${RF:-3}
       - --advertise_address=${MY_IP}
       - --join=${LEADER_IP}
       - --base_dir=/home/yugabyte/yb_data
