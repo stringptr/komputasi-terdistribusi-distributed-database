@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     profiles: ["db", "dev"]
     volumes:
-      - ./yugabyte_data:/home/yugabyte/yb_data
+      - ./yugabyte_data:/home/yugabyte/yb_data:z
     command:
       - bin/yugabyted
       - start
