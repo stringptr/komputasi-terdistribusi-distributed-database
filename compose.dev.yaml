@@ -22,7 +22,9 @@ services:
       target: development
     network_mode: host
     volumes:
-      - ./app_data:/app
+      - ./app:/app:z
+      - /app/node_modules
+      - /app/.next
     depends_on:
       yugabyte:
         required: false
@@ -30,5 +32,8 @@ services:
     environment:
       - NODE_ENV=development
       - DB_HOSTS=${DB_HOSTS}
+      - YB_DATABASE=${YB_DATABASE}
+      - YB_USER=${YB_USER}
+      - YB_PASSWORD=${YB_PASSWORD}
     profiles: ["app", "dev"]
     restart: unless-stopped
