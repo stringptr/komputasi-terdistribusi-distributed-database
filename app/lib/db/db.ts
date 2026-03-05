@@ -25,4 +25,7 @@ export const pool = new Pool({
   max: 10,
 });
 
+pool.on('connect', () => console.log('[DB] New client connected'));
+pool.on('error', (err) => console.error('[DB] Pool error:', err));
+
 export const db = drizzle(pool, { schema });
