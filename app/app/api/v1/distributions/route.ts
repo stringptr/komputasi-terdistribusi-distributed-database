@@ -6,25 +6,33 @@ import { store, produk, distribusi } from '@/lib/db/schema';
 const storeAsal = aliasedTable(store, 'sa');
 const storeTujuan = aliasedTable(store, 'st');
 
-export async function GET() {
-  console.log('[API] /api/v1/distributions - Request received');
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const tableName = searchParams.get('table');
+
   try {
-    console.log('[API] Executing DB query...');
-    const result = await db
-      .select({
-        'Toko Awal': storeAsal.namaStore,
-        'Toko Tujuan': storeTujuan.namaStore,
-        'Nama Produk': produk.namaProduk,
-      })
-      .from(distribusi)
-      .innerJoin(storeAsal, eq(storeAsal.idStore, distribusi.idAsal))
-      .innerJoin(storeTujuan, eq(storeTujuan.idStore, distribusi.idTujuan))
-      .innerJoin(produk, eq(produk.idProduk, distribusi.idProduk));
-    
-    console.log('[API] Query result:', result.length, 'rows');
+    let result;
+
+    if (tableName === 'store') {
+      result = await db.select().from(store);
+    } else if (tableName === 'produk') {
+      result = await db.select().from(produk);
+    } else {
+      result = await db
+        .select({
+          id_distribusi: distribusi.idDistribusi,
+          'Toko Asal': storeAsal.namaStore,
+          'Toko Tujuan': storeTujuan.namaStore,
+          'Nama Produk': produk.namaProduk,
+        })
+        .from(distribusi)
+        .innerJoin(storeAsal, eq(storeAsal.idStore, distribusi.idAsal))
+        .innerJoin(storeTujuan, eq(storeTujuan.idStore, distribusi.idTujuan))
+        .innerJoin(produk, eq(produk.idProduk, distribusi.idProduk));
+    }
+
     return NextResponse.json(result);
   } catch (error) {
-    console.error('[API] DB Error:', error);
     return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
