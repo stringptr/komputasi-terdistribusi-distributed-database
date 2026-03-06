@@ -2,19 +2,21 @@ services:
   yugabyte:
     image: yugabytedb/yugabyte:latest
     container_name: yugabyte-node
-    network_mode: host
     restart: unless-stopped
     profiles: ["db", "dev"]
+    ports:
+      - "15433:15433"   
+      - "5433:5433"     
+      - "9042:9042"     
+      - "7000:7000"     
+      - "9000:9000"     
     volumes:
       - ./yugabyte_data:/home/yugabyte/yb_data:z
     command:
       - bin/yugabyted
       - start
-      - --advertise_address=${MY_IP}
-      - --join=${LEADER_IP}
-      - --base_dir=/home/yugabyte/yb_data
+      - --join={$LEADER_IP}
       - --background=false
-      - --fault_tolerance=zone
 
   app:
     build:
