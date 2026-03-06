@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { eq, aliasedTable } from 'drizzle-orm';
+import { eq, aliasedTable, asc } from 'drizzle-orm';
 import { db } from '@/lib/db/db';
 import { store, produk, distribusi } from '@/lib/db/schema';
 
@@ -14,9 +14,17 @@ export async function GET(req: Request) {
     let result;
 
     if (tableName === 'store') {
-      result = await db.select().from(store);
+      result = await db
+        .select()
+        .from(store)
+        .orderBy(asc(store.idStore));
+
     } else if (tableName === 'produk') {
-      result = await db.select().from(produk);
+      result = await db
+        .select()
+        .from(produk)
+        .orderBy(asc(produk.idProduk));
+
     } else {
       result = await db
         .select({
@@ -28,7 +36,8 @@ export async function GET(req: Request) {
         .from(distribusi)
         .innerJoin(storeAsal, eq(storeAsal.idStore, distribusi.idAsal))
         .innerJoin(storeTujuan, eq(storeTujuan.idStore, distribusi.idTujuan))
-        .innerJoin(produk, eq(produk.idProduk, distribusi.idProduk));
+        .innerJoin(produk, eq(produk.idProduk, distribusi.idProduk))
+        .orderBy(asc(distribusi.idDistribusi)); // Sort by id_distribusi
     }
 
     return NextResponse.json(result);
